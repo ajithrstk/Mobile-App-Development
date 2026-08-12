@@ -46,4 +46,9 @@ node_modules/
 .expo/
 dist/
 
+node_modules/
+.env
+.expo/
+dist/
+
 *.log
