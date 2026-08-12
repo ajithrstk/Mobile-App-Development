@@ -16,7 +16,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.arunajith.whatsappchattask",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSMicrophoneUsageDescription": "Allow WhatsAppChatTask to record voice messages in chats.",
+        "NSPhotoLibraryUsageDescription": "Allow WhatsAppChatTask to access your photos and videos so you can send media in chats."
       }
     },
     "android": {
@@ -25,6 +27,9 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
+      "permissions": [
+        "RECORD_AUDIO"
+      ],
       "package": "com.arunajith.whatsappchattask"
     },
     "web": {
@@ -35,6 +40,16 @@
         "projectId": "14919ec1-8efb-4cac-aa2d-796ad71ff8f8"
       }
     },
-    "owner": "arunajith"
+    "owner": "arunajith",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow WhatsAppChatTask to access your photos and videos so you can send media in chats.",
+          "cameraPermission": "Allow WhatsAppChatTask to open the camera for chat attachments.",
+          "microphonePermission": false
+        }
+      ]
+    ]
   }
 }
