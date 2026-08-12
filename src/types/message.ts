@@ -1,9 +1,9 @@
 import type { ImageSourcePropType } from 'react-native';
 
 export type MessageSender = 'me' | 'them';
-export type MessageKind = 'text' | 'image' | 'video' | 'voice' | 'file' | 'audio' | 'location' | 'poll';
+export type MessageKind = 'text' | 'image' | 'video' | 'voice' | 'file' | 'audio' | 'location' | 'poll' | 'gif' | 'contact';
 export type MessageDeliveryStatus = 'sending' | 'sent' | 'delivered' | 'seen' | 'read' | 'failed';
-export type MessageMenuAction = 'reply' | 'forward' | 'copy' | 'star' | 'pin' | 'delete';
+export type MessageMenuAction = 'reply' | 'forward' | 'copy' | 'star' | 'pin' | 'delete' | 'share' | 'report';
 export type AttachmentOption = 'document' | 'camera' | 'gallery' | 'audio' | 'location' | 'contact' | 'poll';
 export type TransferStatus = 'idle' | 'uploading' | 'downloading' | 'complete' | 'failed';
 export type FileCategory = 'pdf' | 'doc' | 'sheet' | 'presentation' | 'zip' | 'txt' | 'audio' | 'generic';
@@ -33,6 +33,19 @@ export type LocationAttachment = {
   address: string;
   latitude?: number;
   longitude?: number;
+};
+
+export type ContactAttachment = {
+  name: string;
+  phone: string;
+  avatarUri?: string;
+};
+
+export type LinkPreviewAttachment = {
+  title: string;
+  description?: string;
+  domain: string;
+  url: string;
 };
 
 export type PollOption = {
@@ -73,8 +86,11 @@ export type ChatMessage = {
   replyTo?: ReplyPreview;
   file?: FileAttachment;
   location?: LocationAttachment;
+  contact?: ContactAttachment;
+  linkPreview?: LinkPreviewAttachment;
   mentions?: string[];
   poll?: PollAttachment;
+  deleted?: boolean;
   transferStatus?: TransferStatus;
   transferProgress?: number;
   localAudioUri?: string;

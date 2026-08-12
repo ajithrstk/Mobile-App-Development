@@ -7,8 +7,10 @@ import ContactsScreen from '../screens/ContactsScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import EnterpriseDashboardScreen from '../screens/EnterpriseDashboardScreen';
 import ForwardSelectionScreen from '../screens/ForwardSelectionScreen';
+import GlobalSearchScreen from '../screens/GlobalSearchScreen';
 import GroupsScreen from '../screens/GroupsScreen';
 import MediaViewerScreen from '../screens/MediaViewerScreen';
+import MediaLinksDocsScreen from '../screens/MediaLinksDocsScreen';
 import CallDetailsScreen from '../screens/CallDetailsScreen';
 import CallHistoryScreen from '../screens/CallHistoryScreen';
 import CallScreen from '../screens/CallScreen';
@@ -35,11 +37,13 @@ export default function ChatNavigator() {
       <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="ContactsScreen" component={ContactsScreen} />
+      <Stack.Screen name="GlobalSearchScreen" component={GlobalSearchScreen} />
       <Stack.Screen name="GroupsScreen" component={GroupsScreen} />
       <Stack.Screen name="EnterpriseDashboardScreen" component={EnterpriseDashboardScreen} />
       <Stack.Screen name="ForwardSelectionScreen" component={ForwardSelectionScreen} />
       <Stack.Screen name="StarredMessagesScreen" component={StarredMessagesScreen} />
       <Stack.Screen name="ChatInfoScreen" component={ChatInfoScreen} />
+      <Stack.Screen name="MediaLinksDocsScreen" component={MediaLinksDocsScreen} />
       <Stack.Screen name="MediaViewerScreen" component={MediaViewerScreen} />
       <Stack.Screen name="CallScreen" component={CallScreen} />
       <Stack.Screen name="IncomingCallScreen" component={IncomingCallScreen} />

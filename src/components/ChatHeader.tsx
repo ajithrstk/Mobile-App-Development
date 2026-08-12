@@ -9,6 +9,7 @@ type ChatHeaderProps = {
   selectionCount: number;
   onBack: () => void;
   onClearSelection: () => void;
+  onCopySelected: () => void;
   onDeleteSelected: () => void;
   onForwardSelected: () => void;
   onOpenInfo: () => void;
@@ -17,6 +18,8 @@ type ChatHeaderProps = {
   onStartVoiceCall: () => void;
   onStartVideoCall: () => void;
   onStarSelected: () => void;
+  onShareSelected: () => void;
+  onReportSelected: () => void;
 };
 
 const androidTopInset = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
@@ -27,6 +30,7 @@ export default function ChatHeader({
   selectionCount,
   onBack,
   onClearSelection,
+  onCopySelected,
   onDeleteSelected,
   onForwardSelected,
   onOpenInfo,
@@ -35,6 +39,8 @@ export default function ChatHeader({
   onStartVideoCall,
   onStartVoiceCall,
   onStarSelected,
+  onShareSelected,
+  onReportSelected,
 }: ChatHeaderProps) {
   const styles = createStyles(colors);
 
@@ -48,8 +54,17 @@ export default function ChatHeader({
         <TouchableOpacity onPress={onStarSelected} style={styles.iconButton}>
           <Ionicons name="star-outline" size={23} color={colors.icon} />
         </TouchableOpacity>
+        <TouchableOpacity onPress={onCopySelected} style={styles.iconButton}>
+          <Ionicons name="copy-outline" size={22} color={colors.icon} />
+        </TouchableOpacity>
         <TouchableOpacity onPress={onForwardSelected} style={styles.iconButton}>
           <Ionicons name="arrow-redo-outline" size={24} color={colors.icon} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onShareSelected} style={styles.iconButton}>
+          <Ionicons name="share-social-outline" size={22} color={colors.icon} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onReportSelected} style={styles.iconButton}>
+          <Ionicons name="flag-outline" size={22} color={colors.icon} />
         </TouchableOpacity>
         <TouchableOpacity onPress={onDeleteSelected} style={styles.iconButton}>
           <Ionicons name="trash-outline" size={23} color={colors.icon} />

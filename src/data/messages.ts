@@ -183,6 +183,20 @@ const messages: ChatMessage[] = generatedMessages.map((message, index) => {
     };
   }
 
+  if (index === 32) {
+    return {
+      ...message,
+      kind: 'text',
+      linkPreview: {
+        description: 'Expo SDK 54 release notes, API references and package installation details.',
+        domain: 'docs.expo.dev',
+        title: 'Expo SDK 54 documentation',
+        url: 'https://docs.expo.dev/versions/v54.0.0/',
+      },
+      text: 'Keep this link handy for Expo 54: https://docs.expo.dev/versions/v54.0.0/',
+    };
+  }
+
   if (index === 35) {
     return {
       ...message,
@@ -197,6 +211,43 @@ const messages: ChatMessage[] = generatedMessages.map((message, index) => {
       transferStatus: 'complete',
       transferProgress: 1,
       forwarded: true,
+    };
+  }
+
+  if (index === 41) {
+    return {
+      ...message,
+      kind: 'gif',
+      image: messageImages[index % messageImages.length],
+      text: 'Reaction GIF for the launch party.',
+    };
+  }
+
+  if (index === 44) {
+    return {
+      ...message,
+      contact: {
+        name: 'Naveen',
+        phone: '+91 98765 43210',
+      },
+      kind: 'contact',
+      text: 'Naveen',
+    };
+  }
+
+  if (index === 49) {
+    return {
+      ...message,
+      kind: 'poll',
+      poll: {
+        allowMultiple: true,
+        options: [
+          { id: 'poll-snacks', text: 'Snacks', votes: 6 },
+          { id: 'poll-coffee', text: 'Coffee', votes: 9, votedByMe: true },
+          { id: 'poll-juice', text: 'Juice', votes: 3 },
+        ],
+        question: 'What should we order for the review?',
+      },
     };
   }
 

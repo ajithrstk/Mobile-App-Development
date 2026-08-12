@@ -169,9 +169,15 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   }, [chat.id]);
 
   useEffect(() => {
+    if (route.params.targetMessageId) {
+      setMessages(storeMessages);
+      setOlderMessages([]);
+      return;
+    }
+
     setMessages(storeMessages.slice(-INITIAL_VISIBLE_MESSAGES));
     setOlderMessages(storeMessages.slice(0, -INITIAL_VISIBLE_MESSAGES));
-  }, [storeMessages]);
+  }, [route.params.targetMessageId, storeMessages]);
 
   useEffect(() => {
     if (storeMessages.length > 0) {
@@ -215,6 +221,21 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
     },
     [messageTimelineIndex],
   );
+
+  useEffect(() => {
+    const targetMessageId = route.params.targetMessageId;
+
+    if (!targetMessageId || !messageTimelineIndex.has(targetMessageId)) {
+      return;
+    }
+
+    if (route.params.searchQuery) {
+      setSearchQuery(route.params.searchQuery);
+    }
+
+    const timer = setTimeout(() => scrollToMessage(targetMessageId), 320);
+    return () => clearTimeout(timer);
+  }, [messageTimelineIndex, route.params.searchQuery, route.params.targetMessageId, scrollToMessage]);
 
   const simulateTransfer = useCallback((messageIds: string[], mode: 'uploading' | 'downloading') => {
     const steps = [0.18, 0.38, 0.62, 0.82, 1];
@@ -468,12 +489,22 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
       }
 
       if (action === 'star') {
-        setMessages((currentMessages) =>
-          currentMessages.map((message) =>
-            message.id === activeMessage.id ? { ...message, starred: !message.starred } : message,
-          ),
-        );
+        messagesActions.toggleStar(chat.id, [activeMessage.id]);
         closeMenu();
+        return;
+      }
+
+      if (action === 'share') {
+        Alert.alert('Share', 'Share sheet simulated for this local-only demo.');
+        closeMenu();
+        return;
+      }
+
+      if (action === 'report') {
+        Alert.alert('Report message?', 'This report is stored as a local demo action only.', [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Report', onPress: closeMenu, style: 'destructive' },
+        ]);
         return;
       }
 
@@ -492,8 +523,25 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
         return;
       }
 
-      setMessages((currentMessages) => currentMessages.filter((message) => message.id !== activeMessage.id));
-      closeMenu();
+      Alert.alert('Delete message?', 'Choose how you want to delete this message.', [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete for me',
+          onPress: () => {
+            messagesActions.deleteForMe(chat.id, [activeMessage.id]);
+            closeMenu();
+          },
+          style: 'destructive',
+        },
+        {
+          text: 'Delete for everyone',
+          onPress: () => {
+            messagesActions.deleteForEveryone(chat.id, [activeMessage.id]);
+            closeMenu();
+          },
+          style: 'destructive',
+        },
+      ]);
     },
     [activeMessage, applyReply, chat, closeMenu, group, navigation],
   );
@@ -503,24 +551,67 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
       return;
     }
 
-    const idsToDelete = selectedMessageIds;
-    setMessages((currentMessages) => currentMessages.filter((message) => !idsToDelete.has(message.id)));
-    clearSelection();
-  }, [clearSelection, selectedMessageIds, selectionCount]);
+    const idsToDelete = [...selectedMessageIds];
+    Alert.alert('Delete messages?', `Delete ${selectionCount} selected message${selectionCount === 1 ? '' : 's'}?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete for me',
+        onPress: () => {
+          messagesActions.deleteForMe(chat.id, idsToDelete);
+          clearSelection();
+        },
+        style: 'destructive',
+      },
+      {
+        text: 'Delete for everyone',
+        onPress: () => {
+          messagesActions.deleteForEveryone(chat.id, idsToDelete);
+          clearSelection();
+        },
+        style: 'destructive',
+      },
+    ]);
+  }, [chat.id, clearSelection, selectedMessageIds, selectionCount]);
 
   const starSelectedMessages = useCallback(() => {
     if (selectionCount === 0) {
       return;
     }
 
-    const idsToStar = selectedMessageIds;
-    setMessages((currentMessages) =>
-      currentMessages.map((message) =>
-        idsToStar.has(message.id) ? { ...message, starred: true } : message,
-      ),
-    );
+    const selectedMessages = messages.filter((message) => selectedMessageIds.has(message.id));
+    const shouldStar = selectedMessages.some((message) => !message.starred);
+    messagesActions.toggleStar(chat.id, [...selectedMessageIds], shouldStar);
     clearSelection();
-  }, [clearSelection, selectedMessageIds, selectionCount]);
+  }, [chat.id, clearSelection, messages, selectedMessageIds, selectionCount]);
+
+  const copySelectedMessages = useCallback(() => {
+    const copyText = messages
+      .filter((message) => selectedMessageIds.has(message.id) && message.text)
+      .map((message) => message.text)
+      .join('\n');
+    Alert.alert('Copied', copyText || 'Only text messages can be copied.');
+    clearSelection();
+  }, [clearSelection, messages, selectedMessageIds]);
+
+  const shareSelectedMessages = useCallback(() => {
+    if (selectionCount === 0) {
+      return;
+    }
+
+    Alert.alert('Share', `${selectionCount} message${selectionCount === 1 ? '' : 's'} ready to share.`);
+    clearSelection();
+  }, [clearSelection, selectionCount]);
+
+  const reportSelectedMessages = useCallback(() => {
+    if (selectionCount === 0) {
+      return;
+    }
+
+    Alert.alert('Report messages?', 'This report is stored as a local demo action only.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Report', onPress: clearSelection, style: 'destructive' },
+    ]);
+  }, [clearSelection, selectionCount]);
 
   const forwardSelectedMessages = useCallback(() => {
     if (selectionCount === 0) {
@@ -533,41 +624,8 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   }, [chat, clearSelection, messages, navigation, selectedMessageIds, selectionCount]);
 
   const toggleReaction = useCallback((messageId: string, emoji: string) => {
-    setMessages((currentMessages) =>
-      currentMessages.map((message) => {
-        if (message.id !== messageId) {
-          return message;
-        }
-
-        const reactions = [...(message.reactions ?? [])];
-        const reactionIndex = reactions.findIndex((reaction) => reaction.emoji === emoji);
-
-        if (reactionIndex === -1) {
-          return {
-            ...message,
-            reactions: [...reactions, { emoji, count: 1, reactedByMe: true }],
-          };
-        }
-
-        const existingReaction = reactions[reactionIndex];
-        const nextCount = existingReaction.reactedByMe ? existingReaction.count - 1 : existingReaction.count + 1;
-        const nextReaction = {
-          ...existingReaction,
-          count: Math.max(nextCount, 0),
-          reactedByMe: !existingReaction.reactedByMe,
-        };
-        const nextReactions =
-          nextReaction.count === 0
-            ? reactions.filter((reaction) => reaction.emoji !== emoji)
-            : reactions.map((reaction, index) => (index === reactionIndex ? nextReaction : reaction));
-
-        return {
-          ...message,
-          reactions: nextReactions,
-        };
-      }),
-    );
-  }, []);
+    messagesActions.toggleReaction(chat.id, messageId, emoji);
+  }, [chat.id]);
 
   const votePoll = useCallback((messageId: string, optionId: string) => {
     setMessages((currentMessages) =>
@@ -679,9 +737,9 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
 
   const openMediaViewer = useCallback(
     (message: ChatMessage) => {
-      navigation.navigate('MediaViewerScreen', { message });
+      navigation.navigate('MediaViewerScreen', { chat, message });
     },
-    [navigation],
+    [chat, navigation],
   );
 
   const goToSearchResult = useCallback(
@@ -737,7 +795,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
           onSwipeReply={applyReply}
           onToggleReaction={toggleReaction}
           onVotePoll={votePoll}
-          searchQuery={searchVisible ? searchQuery : ''}
+          searchQuery={searchVisible || focusedMessageId === item.message.id ? searchQuery : ''}
           selected={selectedMessageIds.has(item.message.id)}
         />
       );
@@ -794,6 +852,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
             colors={colors}
             onBack={() => navigation.goBack()}
             onClearSelection={clearSelection}
+            onCopySelected={copySelectedMessages}
             onDeleteSelected={deleteSelectedMessages}
             onForwardSelected={forwardSelectedMessages}
             onOpenInfo={() => navigation.navigate('ChatInfoScreen', { chat, messages })}
@@ -801,6 +860,8 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
             onOpenStarred={() => navigation.navigate('StarredMessagesScreen', { chat, messages })}
             onStartVideoCall={() => navigation.navigate('CallScreen', { contact: chat, mode: CallMode.Video })}
             onStartVoiceCall={() => navigation.navigate('CallScreen', { contact: chat, mode: CallMode.Voice })}
+            onShareSelected={shareSelectedMessages}
+            onReportSelected={reportSelectedMessages}
             onStarSelected={starSelectedMessages}
             selectionCount={selectionCount}
           />

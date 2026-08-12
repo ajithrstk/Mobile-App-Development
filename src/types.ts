@@ -34,13 +34,15 @@ export type SettingSection = 'account' | 'about' | 'call' | 'chat' | 'general' |
 export type RootStackParamList = {
   MainTabs: undefined;
   AuthStack: undefined;
-  ChatScreen: { chat: Chat; forwardedMessages?: ChatMessage[] };
+  ChatScreen: { chat: Chat; forwardedMessages?: ChatMessage[]; targetMessageId?: string; searchQuery?: string };
+  GlobalSearchScreen: undefined;
   ContactsScreen: undefined;
   GroupsScreen: undefined;
   ForwardSelectionScreen: { sourceChat: Chat; messages: ChatMessage[] };
   StarredMessagesScreen: { chat: Chat; messages: ChatMessage[] };
   ChatInfoScreen: { chat: Chat; messages: ChatMessage[] };
-  MediaViewerScreen: { message: ChatMessage };
+  MediaLinksDocsScreen: { chat: Chat; messages: ChatMessage[] };
+  MediaViewerScreen: { message: ChatMessage; chat?: Chat };
   CallScreen: { contact: Chat; mode: CallMode; callId?: string; resumeExisting?: boolean };
   IncomingCallScreen: { contact: Chat; mode: CallMode; callId: string };
   CallHistoryScreen: undefined;

@@ -169,8 +169,83 @@ export const messagesActions = {
             transferProgress: transfer.progress,
             transferStatus: transfer.status,
           }
+      : message
+    )));
+  },
+
+  updateMessage(chatId: string, messageId: string, updater: (message: ChatMessage) => ChatMessage): void {
+    replaceMessages(chatId, (messages) => messages.map((message) => (
+      message.id === messageId || message.clientId === messageId ? updater(message) : message
+    )));
+  },
+
+  toggleStar(chatId: string, messageIds: string[], value?: boolean): void {
+    const targetIds = new Set(messageIds);
+    replaceMessages(chatId, (messages) => messages.map((message) => (
+      targetIds.has(message.id) || (message.clientId && targetIds.has(message.clientId))
+        ? { ...message, starred: value ?? !message.starred }
         : message
     )));
+  },
+
+  deleteForMe(chatId: string, messageIds: string[]): void {
+    const targetIds = new Set(messageIds);
+    replaceMessages(chatId, (messages) => messages.filter((message) => (
+      !targetIds.has(message.id) && (!message.clientId || !targetIds.has(message.clientId))
+    )));
+  },
+
+  deleteForEveryone(chatId: string, messageIds: string[]): void {
+    const targetIds = new Set(messageIds);
+    replaceMessages(chatId, (messages) => messages.map((message) => (
+      targetIds.has(message.id) || (message.clientId && targetIds.has(message.clientId))
+        ? {
+            ...message,
+            contact: undefined,
+            deleted: true,
+            file: undefined,
+            fileName: undefined,
+            image: undefined,
+            kind: 'text',
+            linkPreview: undefined,
+            location: undefined,
+            mediaUri: undefined,
+            poll: undefined,
+            reactions: undefined,
+            text: undefined,
+            transferProgress: undefined,
+            transferStatus: undefined,
+          }
+        : message
+    )));
+  },
+
+  toggleReaction(chatId: string, messageId: string, emoji: string): void {
+    this.updateMessage(chatId, messageId, (message) => {
+      const currentReactions = message.reactions ?? [];
+      const previousMine = currentReactions.find((reaction) => reaction.reactedByMe);
+
+      if (previousMine?.emoji === emoji) {
+        return {
+          ...message,
+          reactions: currentReactions
+            .map((reaction) => reaction.emoji === emoji ? { ...reaction, count: Math.max(0, reaction.count - 1), reactedByMe: false } : reaction)
+            .filter((reaction) => reaction.count > 0),
+        };
+      }
+
+      const withoutPreviousMine = currentReactions
+        .map((reaction) => reaction.reactedByMe ? { ...reaction, count: Math.max(0, reaction.count - 1), reactedByMe: false } : reaction)
+        .filter((reaction) => reaction.count > 0);
+      const existingReaction = withoutPreviousMine.find((reaction) => reaction.emoji === emoji);
+
+      return {
+        ...message,
+        reactions: existingReaction
+          ? withoutPreviousMine.map((reaction) => reaction.emoji === emoji ? { ...reaction, count: reaction.count + 1, reactedByMe: true } : reaction)
+          : [...withoutPreviousMine, { emoji, count: 1, reactedByMe: true }],
+      };
+    });
   },
 
   markSeen(chatId: string): void {

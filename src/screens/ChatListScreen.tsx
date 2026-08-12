@@ -118,7 +118,7 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header colors={colors} isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
+      <Header colors={colors} isDarkMode={isDarkMode} onOpenSearch={() => navigation.navigate('GlobalSearchScreen')} onToggleTheme={toggleTheme} />
       <View style={styles.container}>
         <NetworkStatusBanner colors={colors} />
         {error && <Text style={styles.inlineError}>{error}</Text>}

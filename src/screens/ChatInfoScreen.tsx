@@ -167,7 +167,7 @@ export default function ChatInfoScreen({ navigation, route }: ChatInfoScreenProp
 
           <View style={styles.contactDivider} />
           <View style={styles.contactSection}>
-            <InfoOption colors={colors} icon="images-outline" label="Media, links and docs" value={`${visibleMediaCount}`} onPress={() => showAction('Media, links and docs')} />
+            <InfoOption colors={colors} icon="images-outline" label="Media, links and docs" value={`${visibleMediaCount}`} onPress={() => navigation.navigate('MediaLinksDocsScreen', { chat, messages })} />
             <View style={styles.contactMediaStrip}>
               {Array.from({ length: 4 }).map((_, index) => {
                 const message = mediaMessages[index % Math.max(mediaMessages.length, 1)];
@@ -281,7 +281,7 @@ export default function ChatInfoScreen({ navigation, route }: ChatInfoScreenProp
         </View>
 
         <View style={styles.section}>
-          <InfoOption colors={colors} icon="images-outline" label="Media, links and docs" value={`${sharedTotal}`} onPress={() => showAction('Media, links and docs')} />
+          <InfoOption colors={colors} icon="images-outline" label="Media, links and docs" value={`${sharedTotal}`} onPress={() => navigation.navigate('MediaLinksDocsScreen', { chat, messages })} />
           <View style={styles.mediaStrip}>
             {mediaMessages.slice(0, 4).map((message, index) => (
               <View key={message.id} style={styles.mediaThumb}>

@@ -5,12 +5,13 @@ import type { ThemeColors } from '../utils/colors';
 type HeaderProps = {
   colors: ThemeColors;
   isDarkMode: boolean;
+  onOpenSearch: () => void;
   onToggleTheme: () => void;
 };
 
 const androidTopInset = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
-export default function Header({ colors, isDarkMode, onToggleTheme }: HeaderProps) {
+export default function Header({ colors, isDarkMode, onOpenSearch, onToggleTheme }: HeaderProps) {
   const styles = createStyles(colors);
 
   return (
@@ -20,7 +21,7 @@ export default function Header({ colors, isDarkMode, onToggleTheme }: HeaderProp
         <TouchableOpacity style={styles.iconButton} activeOpacity={0.7}>
           <Ionicons name="camera-outline" size={24} color={colors.icon} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton} activeOpacity={0.7}>
+        <TouchableOpacity onPress={onOpenSearch} style={styles.iconButton} activeOpacity={0.7}>
           <Ionicons name="search-outline" size={24} color={colors.icon} />
         </TouchableOpacity>
         <TouchableOpacity

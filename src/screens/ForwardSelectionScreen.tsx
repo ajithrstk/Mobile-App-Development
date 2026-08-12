@@ -5,6 +5,8 @@ import { Alert, FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacit
 import SearchBar from '../components/SearchBar';
 import contacts from '../data/contacts';
 import { getContactChat } from '../data/contacts';
+import { chatsActions } from '../state/chats/chatsStore';
+import { messagesActions } from '../state/messages/messagesStore';
 import type { RootStackParamList } from '../types';
 import type { ContactProfile } from '../types/contact';
 import type { ThemeColors } from '../utils/colors';
@@ -51,20 +53,31 @@ export default function ForwardSelectionScreen({ navigation, route }: ForwardSel
       return;
     }
 
-    const forwardedMessages = messages.map((message) => ({
-      ...message,
-      id: `forwarded-${Date.now()}-${message.id}`,
-      sender: 'me' as const,
-      timestamp: new Date().toISOString(),
-      forwarded: true,
-      status: 'sent' as const,
-      reactions: undefined,
-    }));
+    const timestamp = Date.now();
+    const selectedChats = selectedContacts.map(getContactChat);
+
+    selectedChats.forEach((targetChat, chatIndex) => {
+      chatsActions.upsertChat(targetChat);
+      messages.forEach((message, messageIndex) => {
+        const forwardedMessage = {
+          ...message,
+          chatId: targetChat.id,
+          clientId: undefined,
+          id: `forwarded-${timestamp}-${chatIndex}-${messageIndex}-${message.id}`,
+          reactions: undefined,
+          sender: 'me' as const,
+          status: 'sent' as const,
+          timestamp: new Date(timestamp + messageIndex * 1000).toISOString(),
+          forwarded: true,
+        };
+        messagesActions.upsert(targetChat.id, forwardedMessage);
+      });
+    });
 
     if (selectedContacts.length === 1) {
       navigation.replace('ChatScreen', {
-        chat: getContactChat(selectedContacts[0]),
-        forwardedMessages,
+        chat: selectedChats[0],
+        targetMessageId: `forwarded-${timestamp}-0-${messages.length - 1}-${messages[messages.length - 1].id}`,
       });
       return;
     }

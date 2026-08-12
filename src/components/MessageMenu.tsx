@@ -20,12 +20,14 @@ const actionIcons: Record<MessageMenuAction, IoniconName> = {
   reply: 'return-up-back-outline',
   forward: 'arrow-redo-outline',
   copy: 'copy-outline',
+  report: 'flag-outline',
   pin: 'pin-outline',
+  share: 'share-social-outline',
   star: 'star-outline',
   delete: 'trash-outline',
 };
 
-const quickReactions = ['\uD83D\uDC4D', '\u2764\uFE0F', '\uD83D\uDE02', '\uD83D\uDE2E', '\uD83D\uDE22', '\uD83D\uDE80'];
+const quickReactions = ['\uD83D\uDC4D', '\u2764\uFE0F', '\uD83D\uDE02', '\uD83D\uDE2E', '\uD83D\uDE22', '\uD83D\uDE4F'];
 
 export default function MessageMenu({ visible, message, colors, onClose, onAction, onReact }: MessageMenuProps) {
   const styles = createStyles(colors);
@@ -39,7 +41,9 @@ export default function MessageMenu({ visible, message, colors, onClose, onActio
     { key: 'forward', label: 'Forward' },
     { key: 'copy', label: 'Copy', disabled: message.kind !== 'text' },
     { key: 'star', label: message.starred ? 'Unstar' : 'Star' },
+    { key: 'share', label: 'Share' },
     { key: 'pin', label: 'Pin in group' },
+    { key: 'report', label: 'Report' },
     { key: 'delete', label: 'Delete', danger: true },
   ];
 

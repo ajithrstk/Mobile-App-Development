@@ -53,12 +53,16 @@ export function formatDateSeparator(timestamp: string): string {
 }
 
 export function getMessagePreview(message: ChatMessage): string {
+  if (message.deleted) {
+    return 'This message was deleted';
+  }
+
   if (message.kind === 'image') {
     return message.text ? `Photo: ${message.text}` : 'Photo';
   }
 
-  if (message.kind === 'video') {
-    return message.text ? `Video: ${message.text}` : 'Video';
+  if (message.kind === 'video' || message.kind === 'gif') {
+    return message.text ? `${message.kind === 'gif' ? 'GIF' : 'Video'}: ${message.text}` : message.kind === 'gif' ? 'GIF' : 'Video';
   }
 
   if (message.kind === 'voice') {
@@ -75,6 +79,10 @@ export function getMessagePreview(message: ChatMessage): string {
 
   if (message.kind === 'location') {
     return message.location?.title ?? 'Location';
+  }
+
+  if (message.kind === 'contact') {
+    return message.contact?.name ? `Contact: ${message.contact.name}` : 'Contact';
   }
 
   if (message.kind === 'poll') {

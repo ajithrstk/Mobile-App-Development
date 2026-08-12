@@ -140,6 +140,29 @@ export default function MessageBubble({
     focused && styles.focusedBubble,
   ];
 
+  if (message.deleted) {
+    return (
+      <View style={[styles.row, isMine ? styles.sentRow : styles.receivedRow]}>
+        <TouchableOpacity
+          activeOpacity={0.82}
+          onLongPress={() => onLongPress(message)}
+          onPress={() => onPress(message)}
+          style={[...bubbleStyles, styles.deletedBubble]}
+        >
+          <View style={styles.deletedRow}>
+            <Ionicons name="ban-outline" size={16} color={colors.textMuted} />
+            <Text style={styles.deletedText}>This message was deleted</Text>
+          </View>
+          <View style={styles.metaRow}>
+            <Text style={styles.time}>{formatMessageTime(message.timestamp)}</Text>
+          </View>
+          {isMine && <View style={[styles.tail, styles.sentTail]} />}
+          {!isMine && <View style={[styles.tail, styles.receivedTail]} />}
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.row, isMine ? styles.sentRow : styles.receivedRow]}>
       <Animated.View
@@ -161,7 +184,7 @@ export default function MessageBubble({
               <Text style={styles.forwardedText}>Forwarded</Text>
             </View>
           )}
-          {(message.kind === 'image' || message.kind === 'video') && (
+          {(message.kind === 'image' || message.kind === 'video' || message.kind === 'gif') && (
             <MediaMessage
               colors={colors}
               message={message}
@@ -170,6 +193,18 @@ export default function MessageBubble({
               onRetry={onRetryTransfer}
               width={width}
             />
+          )}
+          {message.linkPreview && (
+            <TouchableOpacity activeOpacity={0.78} style={styles.linkPreview}>
+              <View style={styles.linkAccent} />
+              <View style={styles.linkText}>
+                <Text numberOfLines={1} style={styles.linkTitle}>{message.linkPreview.title}</Text>
+                {message.linkPreview.description && (
+                  <Text numberOfLines={2} style={styles.linkDescription}>{message.linkPreview.description}</Text>
+                )}
+                <Text numberOfLines={1} style={styles.linkDomain}>{message.linkPreview.domain}</Text>
+              </View>
+            </TouchableOpacity>
           )}
           {(message.kind === 'file' || message.kind === 'audio') && (
             <FileMessage
@@ -191,6 +226,18 @@ export default function MessageBubble({
                 <Text numberOfLines={1} style={styles.locationTitle}>{message.location?.title ?? 'Location'}</Text>
                 <Text numberOfLines={2} style={styles.locationAddress}>{message.location?.address ?? 'Shared location'}</Text>
               </View>
+            </View>
+          )}
+          {message.kind === 'contact' && (
+            <View style={styles.contactCard}>
+              <View style={styles.contactAvatar}>
+                <Ionicons name="person" size={24} color={colors.badgeText} />
+              </View>
+              <View style={styles.contactText}>
+                <Text numberOfLines={1} style={styles.contactName}>{message.contact?.name ?? 'Contact'}</Text>
+                <Text numberOfLines={1} style={styles.contactPhone}>{message.contact?.phone ?? 'Phone number'}</Text>
+              </View>
+              <Text style={styles.contactAction}>Message</Text>
             </View>
           )}
           {message.kind === 'poll' && message.poll && (
@@ -323,6 +370,56 @@ const createStyles = (colors: ThemeColors, screenWidth: number) =>
       color: colors.primary,
       fontWeight: '500',
     },
+    deletedBubble: {
+      paddingHorizontal: 10,
+      paddingVertical: 7,
+    },
+    deletedRow: {
+      alignItems: 'center',
+      flexDirection: 'row',
+    },
+    deletedText: {
+      color: colors.textMuted,
+      fontSize: 14,
+      fontStyle: 'italic',
+      marginLeft: 6,
+    },
+    linkPreview: {
+      backgroundColor: colors.mode === 'dark' ? '#17251F' : '#EEF7F4',
+      borderRadius: 7,
+      flexDirection: 'row',
+      marginBottom: 5,
+      minHeight: 76,
+      overflow: 'hidden',
+      width: Math.min(screenWidth * 0.62, 330),
+    },
+    linkAccent: {
+      backgroundColor: colors.primary,
+      width: 4,
+    },
+    linkText: {
+      flex: 1,
+      minWidth: 0,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+    },
+    linkTitle: {
+      color: colors.text,
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    linkDescription: {
+      color: colors.textMuted,
+      fontSize: 12,
+      lineHeight: 16,
+      marginTop: 3,
+    },
+    linkDomain: {
+      color: colors.primary,
+      fontSize: 12,
+      fontWeight: '500',
+      marginTop: 4,
+    },
     locationCard: {
       backgroundColor: colors.mode === 'dark' ? '#17251F' : '#D5E4DD',
       borderRadius: 7,
@@ -343,6 +440,45 @@ const createStyles = (colors: ThemeColors, screenWidth: number) =>
     pollCard: {
       marginBottom: 5,
       minWidth: Math.min(screenWidth * 0.62, 330),
+    },
+    contactCard: {
+      alignItems: 'center',
+      backgroundColor: colors.mode === 'dark' ? '#17251F' : '#EEF7F4',
+      borderRadius: 7,
+      flexDirection: 'row',
+      marginBottom: 5,
+      minHeight: 72,
+      paddingHorizontal: 10,
+      width: Math.min(screenWidth * 0.62, 330),
+    },
+    contactAvatar: {
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      borderRadius: 22,
+      height: 44,
+      justifyContent: 'center',
+      width: 44,
+    },
+    contactText: {
+      flex: 1,
+      marginLeft: 10,
+      minWidth: 0,
+    },
+    contactName: {
+      color: colors.text,
+      fontSize: 15,
+      fontWeight: '600',
+    },
+    contactPhone: {
+      color: colors.textMuted,
+      fontSize: 12,
+      marginTop: 3,
+    },
+    contactAction: {
+      color: colors.primary,
+      fontSize: 13,
+      fontWeight: '600',
+      marginLeft: 8,
     },
     pollQuestion: {
       color: colors.text,

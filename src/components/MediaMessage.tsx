@@ -36,8 +36,15 @@ export default function MediaMessage({ message, colors, width, onOpen, onRetry, 
 
   return (
     <TouchableOpacity activeOpacity={0.82} disabled={!source && message.kind !== 'video'} onPress={() => onOpen(message)}>
-      {message.kind === 'image' && source ? (
-        <Image source={source as ImageSourcePropType} resizeMode="cover" style={styles.image} />
+      {(message.kind === 'image' || message.kind === 'gif') && source ? (
+        <View>
+          <Image source={source as ImageSourcePropType} resizeMode="cover" style={styles.image} />
+          {message.kind === 'gif' && (
+            <View style={styles.gifBadge}>
+              <Text style={styles.gifBadgeText}>GIF</Text>
+            </View>
+          )}
+        </View>
       ) : (
         <View style={styles.videoPreview}>
           <View style={styles.videoIconShell}>
@@ -163,5 +170,19 @@ const createStyles = (colors: ThemeColors, screenWidth: number) =>
       fontSize: 13,
       fontWeight: '500',
       marginLeft: 6,
+    },
+    gifBadge: {
+      backgroundColor: 'rgba(0,0,0,0.62)',
+      borderRadius: 4,
+      bottom: 12,
+      paddingHorizontal: 6,
+      paddingVertical: 3,
+      position: 'absolute',
+      right: 7,
+    },
+    gifBadgeText: {
+      color: colors.badgeText,
+      fontSize: 11,
+      fontWeight: '700',
     },
   });
